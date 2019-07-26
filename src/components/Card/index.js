@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import CardSeeAt from '~/components/CardSeeAt';
 import {
@@ -22,17 +22,25 @@ const propTypes = {
   dateString: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   description: PropTypes.string,
+  panEnabled: PropTypes.bool.isRequired,
+  _ref: PropTypes.object
 };
 
-function Card({ coverUri, iconUri, dateString, title, description }) {
+const defaultProps = {
+  panEnabled: false
+};
+
+function Card({ coverUri, iconUri, dateString, title, description, panEnabled, _ref }) {
+
   let offsetX = 0;
   const translateX = new Animated.Value(0);
-
+  const translateY = new Animated.Value(0);
   const onGestureEvent = Animated.event(
     [
       {
         nativeEvent: {
-          translationX: translateX
+          translationX: translateX,
+          translationY: translateY,
         }
       }
     ],
@@ -43,12 +51,15 @@ function Card({ coverUri, iconUri, dateString, title, description }) {
 
   function onHandlerStateChanged(event) {
     let opened = false;
+    const { translationX, translationY } = event.nativeEvent;
+
+    offsetX += translationX;
+
+    if (Math.abs(translationX) > Math.abs(translationY)) {
+      panEnabled = false;
+    }
 
     if (event.nativeEvent.oldState === State.ACTIVE) {
-      const { translationX } = event.nativeEvent;
-
-      offsetX += translationX;
-
       if (translationX <= -10) {
         opened = true;
       } else {
@@ -59,7 +70,7 @@ function Card({ coverUri, iconUri, dateString, title, description }) {
 
       Animated.timing(translateX, {
         toValue: opened ? -95 : 0,
-        duration: 200,
+        duration: 50,
         useNativeDriver: true
       }).start(() => {
         offsetX = opened ? -95 : 0;
@@ -72,6 +83,8 @@ function Card({ coverUri, iconUri, dateString, title, description }) {
   return (
     <Container>
       <PanGestureHandler
+        ref={_ref}
+        enabled={true}
         onGestureEvent={onGestureEvent}
         onHandlerStateChange={onHandlerStateChanged}
         >
@@ -107,5 +120,6 @@ function Card({ coverUri, iconUri, dateString, title, description }) {
 }
 
 Card.propTypes = propTypes;
+Card.defaultProps = defaultProps;
 
 export default Card;

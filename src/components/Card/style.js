@@ -3,18 +3,17 @@ import CardIconComponent from "~/components/CardIcon";
 import { Animated } from 'react-native';
 
 export const Container = styled.View`
-  
+
 `;
 
 export const CardWrapper = styled(Animated.View)`
   margin: 20px;
-  position: absolute;
-  left: 0;
   min-height: 300px;
   border-radius: 10px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
   background: white;
   z-index: 5;
+  
 `;
 
 export const CardCover = styled.Image.attrs({
