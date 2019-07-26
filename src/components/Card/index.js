@@ -13,8 +13,7 @@ import {
 } from '~/components/Card/style';
 import CardButton from "~/components//CardButton";
 import ActionButton from "../ActionButton";
-import { PanGestureHandler, State } from "react-native-gesture-handler";
-import { Animated } from 'react-native';
+import { Animated, PanResponder } from 'react-native';
 
 const propTypes = {
   coverUri: PropTypes.string.isRequired,
@@ -22,55 +21,36 @@ const propTypes = {
   dateString: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   description: PropTypes.string,
-  panEnabled: PropTypes.bool.isRequired,
-  _ref: PropTypes.object
 };
 
 const defaultProps = {
   panEnabled: false
 };
 
-function Card({ coverUri, iconUri, dateString, title, description, panEnabled, _ref }) {
-
+function Card({ coverUri, iconUri, dateString, title, description }) {
   let offsetX = 0;
+  let opened = false;
   const translateX = new Animated.Value(0);
-  const translateY = new Animated.Value(0);
-  const onGestureEvent = Animated.event(
-    [
-      {
-        nativeEvent: {
-          translationX: translateX,
-          translationY: translateY,
-        }
-      }
-    ],
-    {
-      useNativeDriver: true
-    }
-  );
 
-  function onHandlerStateChanged(event) {
-    let opened = false;
-    const { translationX, translationY } = event.nativeEvent;
+  const panResponder = PanResponder.create({
+    onStartShouldSetPanResponder: (evt, gestureState) => true,
 
-    offsetX += translationX;
+    onPanResponderMove: (e, gestureState) => {
+      const { dx } = gestureState;
 
-    if (Math.abs(translationX) > Math.abs(translationY)) {
-      panEnabled = false;
-    }
+      offsetX += dx;
+      translateX.setValue(offsetX);
+      translateX.setOffset(0);
+    },
 
-    if (event.nativeEvent.oldState === State.ACTIVE) {
-      if (translationX <= -10) {
-        opened = true;
-      } else {
-        translateX.setValue(offsetX);
-        translateX.setOffset(0);
-        offsetX = 0;
-      }
+    onPanResponderEnd: (e, gestureState) => {
+      const { dx } =  gestureState;
+
+      opened = dx <= -10;
 
       Animated.timing(translateX, {
         toValue: opened ? -95 : 0,
-        duration: 50,
+        duration: 100,
         useNativeDriver: true
       }).start(() => {
         offsetX = opened ? -95 : 0;
@@ -78,37 +58,30 @@ function Card({ coverUri, iconUri, dateString, title, description, panEnabled, _
         translateX.setValue(0);
       });
     }
-  }
+  });
 
   return (
     <Container>
-      <PanGestureHandler
-        ref={_ref}
-        enabled={true}
-        onGestureEvent={onGestureEvent}
-        onHandlerStateChange={onHandlerStateChanged}
-        >
-        <CardWrapper style={{
-          transform: [{
-            translateX: translateX.interpolate({
-              inputRange: [-90, 0, 500],
-              outputRange: [-90, 0, 20],
-              extrapolate: 'clamp'
-            })
-          }]
-        }}>
-          <CardCover source={{ uri: coverUri }} />
-          <CardIcon uri={iconUri} />
+      <CardWrapper {...panResponder.panHandlers} style={{
+        transform: [{
+          translateX: translateX.interpolate({
+            inputRange: [-90, 0, 500],
+            outputRange: [-90, 0, 20],
+            extrapolate: 'clamp'
+          })
+        }]
+      }}>
+        <CardCover source={{ uri: coverUri }} />
+        <CardIcon uri={iconUri} />
 
-          <CardBody>
-            <CardSeeAt date={dateString} />
-            <CardTitle>{title}</CardTitle>
-            <CardDescription>{description}</CardDescription>
-          </CardBody>
+        <CardBody>
+          <CardSeeAt date={dateString} />
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>{description}</CardDescription>
+        </CardBody>
 
-          <CardButton>acessar agora</CardButton>
-        </CardWrapper>
-      </PanGestureHandler>
+        <CardButton>acessar agora</CardButton>
+      </CardWrapper>
 
       <ActionBar>
         <ActionButton icon='edit' />
