@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
-import {Container, CurrentDate, Title, LeftView, RightView, FilterIcon} from '~/components/Header/style';
-import { Modal, TouchableOpacity, View, Text } from 'react-native';
-import { BlurView, VibrancyView } from "@react-native-community/blur";
+import React from 'react';
+import {Container, CurrentDate, Title, LeftView, RightView} from '~/components/Header/style';
 import Filter from '~/components/Filter';
 
 export default function Header() {

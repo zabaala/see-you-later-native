@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {Modal, Text, TouchableOpacity, View} from "react-native";
+import { Modal, TouchableOpacity } from "react-native";
 import {BlurView} from "@react-native-community/blur";
 import { FilterIcon, Options } from "~/components/Filter/style";
 import OptionItem from '~/components/OptionItem';
@@ -43,7 +43,7 @@ function ModalComponent({ modalVisible, setModalVisible }) {
 }
 
 export default function Filter() {
-  const [modalVisible, setModalVisible] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
 
   return (
     <React.Fragment>
